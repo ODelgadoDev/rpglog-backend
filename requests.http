@@ -1,0 +1,110 @@
+### Ping
+GET http://localhost:3001/api/auth/ping
+
+### Register
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "Orlando",
+  "email": "orlando@test.com",
+  "password": "123456"
+}
+
+### Login
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "orlando@test.com",
+  "password": "123456"
+}
+
+### Login
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "orlando@test.com",
+  "password": "123456"
+}
+
+
+### Create Quest
+POST http://localhost:3001/api/quests
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI3NjA0NjIsImV4cCI6MTc3MzM2NTI2Mn0.9YpxuawYFW6k_S0ukMHeeIqwmXZeI9ekoywnnXYW5HM
+
+{
+  "title": "Tomar agua",
+  "description": "1 vaso grande",
+  "type": "daily",
+  "xpReward": 10
+}
+
+### List Quests
+GET http://localhost:3001/api/quests
+Authorization: Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI3NTkzNjMsImV4cCI6MTc3MzM2NDE2M30.vv3RmpjPD7EgWPSvK-lZxHzO1koIFcFj03Mg3TjlGeY"
+
+### Complete Quest
+PATCH http://localhost:3001/api/quests/69aa2da31a752a62718bb635/complete
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI3NjA0NjIsImV4cCI6MTc3MzM2NTI2Mn0.9YpxuawYFW6k_S0ukMHeeIqwmXZeI9ekoywnnXYW5HM
+
+### Delete Quest
+DELETE http://localhost:3001/api/quests/ID_DE_LA_QUEST
+Authorization: Bearer TU_TOKEN_AQUI
+
+
+### Create Quest 2
+POST http://localhost:3001/api/quests
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI3NjIwNDQsImV4cCI6MTc3MzM2Njg0NH0.YtArzl2ZS1QQj1gpxVhr5n1Phv8sHtlFMqCP49bkw5U
+
+{
+  "title": "Caminar 20 minutos",
+  "description": "Salir a caminar afuera",
+  "type": "daily",
+  "xpReward": 50
+}
+
+### List Quests
+GET http://localhost:3001/api/quests
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI3NjIwNDQsImV4cCI6MTc3MzM2Njg0NH0.YtArzl2ZS1QQj1gpxVhr5n1Phv8sHtlFMqCP49bkw5U
+
+
+### Complete Quest
+PATCH http://localhost:3001/api/quests/69aa33d51a752a62718bb63c/complete
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI3NjIwNDQsImV4cCI6MTc3MzM2Njg0NH0.YtArzl2ZS1QQj1gpxVhr5n1Phv8sHtlFMqCP49bkw5U
+
+### Seed Daily Quests
+POST http://localhost:3001/api/quests/seed-daily
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzI4NDQwMTAsImV4cCI6MTc3MzQ0ODgxMH0.UDVsOLbTOYoxO2U10tYmBGRHtODtEDf48E4z8eIo6QI
+
+
+### Sync Push
+POST http://localhost:3001/api/sync/push
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzMxMDYxMDcsImV4cCI6MTc3MzcxMDkwN30.xAvU09X2CDYX04Ce16H0h4-cKkQL6GXM2myo7lgeaYU
+
+{
+  "quests": [
+    {
+      "clientId": "local-quest-001",
+      "title": "Quest creada offline",
+      "description": "Se guardó primero en local",
+      "type": "daily",
+      "xpReward": 30,
+      "completed": false,
+      "deleted": false,
+      "dayKey": "2026-03-05",
+      "deviceId": "macbook-orlando"
+    }
+  ]
+}
+
+### Sync Pull
+GET http://localhost:3001/api/sync/pull
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWFhMWZlMDU4ODkwZjIwYjM1NzliOGEiLCJlbWFpbCI6Im9ybGFuZG9AdGVzdC5jb20iLCJpYXQiOjE3NzMxMDYxMDcsImV4cCI6MTc3MzcxMDkwN30.xAvU09X2CDYX04Ce16H0h4-cKkQL6GXM2myo7lgeaYU
+
+

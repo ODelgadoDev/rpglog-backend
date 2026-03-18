@@ -1,0 +1,5 @@
+- local storage / backup 
+- syncronia despues del offline
+- acomodar valor de tokens por mision y usuario
+- monto total de exp por nivel
+-preparar sincronizacion del manifest
