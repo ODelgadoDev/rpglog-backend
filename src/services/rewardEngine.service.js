@@ -8,6 +8,45 @@ const {
 } = require("../utils/progression");
 
 async function applyQuestReward(userId, quest) {
+  return applyRewardBundle(userId, {
+    globalXp: typeof quest.globalXpReward === "number" ? quest.globalXpReward : quest.xpReward || 0,
+    coins: quest.coinReward || 0,
+    statRewards: Array.isArray(quest.statRewards) ? quest.statRewards : [],
+    sourceType: mapQuestTypeToSourceType(quest.type),
+    sourceId: quest._id.toString(),
+    bonusFlags: {
+      questType: quest.type
+    }
+  });
+}
+
+async function applyPhotoEvidenceReward(userId, quest) {
+  return applyRewardBundle(userId, {
+    globalXp: quest.photoBonusXp || 0,
+    coins: quest.photoBonusCoins || 0,
+    statRewards: Array.isArray(quest.photoBonusStatRewards) ? quest.photoBonusStatRewards : [],
+    sourceType: "quest_photo_evidence",
+    sourceId: quest._id.toString(),
+    bonusFlags: {
+      evidenceType: "photo"
+    }
+  });
+}
+
+async function applyLocationEvidenceReward(userId, quest) {
+  return applyRewardBundle(userId, {
+    globalXp: quest.locationBonusXp || 0,
+    coins: quest.locationBonusCoins || 0,
+    statRewards: Array.isArray(quest.locationBonusStatRewards) ? quest.locationBonusStatRewards : [],
+    sourceType: "quest_location_evidence",
+    sourceId: quest._id.toString(),
+    bonusFlags: {
+      evidenceType: "location"
+    }
+  });
+}
+
+async function applyRewardBundle(userId, bundle) {
   await ensureUserProgress(userId);
 
   const profile = await UserProfile.findOne({ userId });
@@ -15,16 +54,10 @@ async function applyQuestReward(userId, quest) {
     throw new Error("UserProfile no encontrado");
   }
 
-  // Compatibilidad: si no trae globalXpReward usamos xpReward
-  const globalXpToAdd =
-    typeof quest.globalXpReward === "number"
-      ? quest.globalXpReward
-      : quest.xpReward || 0;
+  const globalXpToAdd = bundle.globalXp || 0;
+  const coinsToAdd = bundle.coins || 0;
+  const statRewards = Array.isArray(bundle.statRewards) ? bundle.statRewards : [];
 
-  const coinsToAdd = quest.coinReward || 0;
-  const statRewards = Array.isArray(quest.statRewards) ? quest.statRewards : [];
-
-  // 1) XP global
   profile.xpTotal += globalXpToAdd;
   profile.coins += coinsToAdd;
   profile.coinsEarnedTotal += coinsToAdd;
@@ -36,22 +69,21 @@ async function applyQuestReward(userId, quest) {
 
   await profile.save();
 
-  // 2) Log global
   if (globalXpToAdd > 0) {
     await XpLog.create({
       userId,
       amount: globalXpToAdd,
       amountFinal: globalXpToAdd,
-      sourceType: mapQuestTypeToSourceType(quest.type),
-      sourceId: quest._id.toString(),
+      sourceType: bundle.sourceType,
+      sourceId: bundle.sourceId,
       statKey: null,
       bonusFlags: {
+        ...bundle.bonusFlags,
         coinsGranted: coinsToAdd
       }
     });
   }
 
-  // 3) XP por stat
   for (const reward of statRewards) {
     const stat = await UserStat.findOne({
       userId,
@@ -72,10 +104,10 @@ async function applyQuestReward(userId, quest) {
       userId,
       amount: reward.amount,
       amountFinal: reward.amount,
-      sourceType: mapQuestTypeToSourceType(quest.type),
-      sourceId: quest._id.toString(),
+      sourceType: bundle.sourceType,
+      sourceId: bundle.sourceId,
       statKey: reward.statKey,
-      bonusFlags: {}
+      bonusFlags: bundle.bonusFlags || {}
     });
   }
 
@@ -102,5 +134,7 @@ function mapQuestTypeToSourceType(type) {
 }
 
 module.exports = {
-  applyQuestReward
+  applyQuestReward,
+  applyPhotoEvidenceReward,
+  applyLocationEvidenceReward
 };

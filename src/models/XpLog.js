@@ -21,7 +21,9 @@ const xpLogSchema = new mongoose.Schema(
         "special_mission",
         "custom_mission",
         "minigame",
-        "achievement"
+        "achievement",
+        "quest_photo_evidence",
+        "quest_location_evidence"
       ]
     },
 

@@ -24,6 +24,19 @@ const DAILY_QUESTS = [
     statRewards: [
       { statKey: "res", amount: 15 },
       { statKey: "agi", amount: 10 }
+    ],
+    photoEvidenceEnabled: true,
+    locationEvidenceEnabled: true,
+    photoBonusXp: 10,
+    photoBonusCoins: 5,
+    photoBonusStatRewards: [
+      { statKey: "res", amount: 10 }
+    ],
+    locationBonusXp: 25,
+    locationBonusCoins: 10,
+    locationBonusStatRewards: [
+      { statKey: "res", amount: 15 },
+      { statKey: "agi", amount: 10 }
     ]
   },
   {

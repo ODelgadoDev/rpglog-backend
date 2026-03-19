@@ -1,6 +1,10 @@
 const Quest = require("../models/Quest");
 const { DAILY_QUESTS } = require("../utils/dailyQuests");
-const { applyQuestReward } = require("../services/rewardEngine.service");
+const {
+  applyQuestReward,
+  applyPhotoEvidenceReward,
+  applyLocationEvidenceReward
+} = require("../services/rewardEngine.service");
 
 function getTodayKey() {
   return new Date().toISOString().split("T")[0];
@@ -55,7 +59,18 @@ async function createQuest(req, res) {
       xpReward = 10,
       globalXpReward,
       coinReward = 0,
-      statRewards = []
+      statRewards = [],
+
+      photoEvidenceEnabled = false,
+      locationEvidenceEnabled = false,
+
+      photoBonusXp = 0,
+      photoBonusCoins = 0,
+      photoBonusStatRewards = [],
+
+      locationBonusXp = 0,
+      locationBonusCoins = 0,
+      locationBonusStatRewards = []
     } = body;
 
     if (!title) {
@@ -73,7 +88,18 @@ async function createQuest(req, res) {
       xpReward,
       globalXpReward: typeof globalXpReward === "number" ? globalXpReward : xpReward,
       coinReward,
-      statRewards
+      statRewards,
+
+      photoEvidenceEnabled,
+      locationEvidenceEnabled,
+
+      photoBonusXp,
+      photoBonusCoins,
+      photoBonusStatRewards,
+
+      locationBonusXp,
+      locationBonusCoins,
+      locationBonusStatRewards
     });
 
     return res.status(201).json({ ok: true, quest });
@@ -96,7 +122,18 @@ async function createCustomQuest(req, res) {
       xpReward = 10,
       globalXpReward,
       coinReward = 0,
-      statRewards = []
+      statRewards = [],
+
+      photoEvidenceEnabled = false,
+      locationEvidenceEnabled = false,
+
+      photoBonusXp = 0,
+      photoBonusCoins = 0,
+      photoBonusStatRewards = [],
+
+      locationBonusXp = 0,
+      locationBonusCoins = 0,
+      locationBonusStatRewards = []
     } = body;
 
     if (!title) {
@@ -114,7 +151,18 @@ async function createCustomQuest(req, res) {
       xpReward,
       globalXpReward: typeof globalXpReward === "number" ? globalXpReward : xpReward,
       coinReward,
-      statRewards
+      statRewards,
+
+      photoEvidenceEnabled,
+      locationEvidenceEnabled,
+
+      photoBonusXp,
+      photoBonusCoins,
+      photoBonusStatRewards,
+
+      locationBonusXp,
+      locationBonusCoins,
+      locationBonusStatRewards
     });
 
     return res.status(201).json({
@@ -156,7 +204,18 @@ async function updateCustomQuest(req, res) {
       xpReward,
       globalXpReward,
       coinReward,
-      statRewards
+      statRewards,
+
+      photoEvidenceEnabled,
+      locationEvidenceEnabled,
+
+      photoBonusXp,
+      photoBonusCoins,
+      photoBonusStatRewards,
+
+      locationBonusXp,
+      locationBonusCoins,
+      locationBonusStatRewards
     } = body;
 
     if (typeof title !== "undefined") quest.title = title;
@@ -165,6 +224,17 @@ async function updateCustomQuest(req, res) {
     if (typeof globalXpReward !== "undefined") quest.globalXpReward = globalXpReward;
     if (typeof coinReward !== "undefined") quest.coinReward = coinReward;
     if (typeof statRewards !== "undefined") quest.statRewards = statRewards;
+
+    if (typeof photoEvidenceEnabled !== "undefined") quest.photoEvidenceEnabled = photoEvidenceEnabled;
+    if (typeof locationEvidenceEnabled !== "undefined") quest.locationEvidenceEnabled = locationEvidenceEnabled;
+
+    if (typeof photoBonusXp !== "undefined") quest.photoBonusXp = photoBonusXp;
+    if (typeof photoBonusCoins !== "undefined") quest.photoBonusCoins = photoBonusCoins;
+    if (typeof photoBonusStatRewards !== "undefined") quest.photoBonusStatRewards = photoBonusStatRewards;
+
+    if (typeof locationBonusXp !== "undefined") quest.locationBonusXp = locationBonusXp;
+    if (typeof locationBonusCoins !== "undefined") quest.locationBonusCoins = locationBonusCoins;
+    if (typeof locationBonusStatRewards !== "undefined") quest.locationBonusStatRewards = locationBonusStatRewards;
 
     await quest.save();
 
@@ -216,6 +286,146 @@ async function completeQuest(req, res) {
     return res.json({
       ok: true,
       message: "Quest completada y recompensa aplicada",
+      quest,
+      profile: progress.profile,
+      stats: progress.stats
+    });
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      message: err.message
+    });
+  }
+}
+
+async function submitPhotoEvidence(req, res) {
+  try {
+    const userId = req.user.userId;
+    const questId = req.params.id;
+
+    const quest = await Quest.findOne({
+      _id: questId,
+      userId,
+      deleted: false
+    });
+
+    if (!quest) {
+      return res.status(404).json({
+        ok: false,
+        message: "Quest no encontrada"
+      });
+    }
+
+    if (!quest.completed) {
+      return res.status(400).json({
+        ok: false,
+        message: "Primero debes completar la quest"
+      });
+    }
+
+    if (!quest.photoEvidenceEnabled) {
+      return res.status(400).json({
+        ok: false,
+        message: "Esta quest no permite evidencia con foto"
+      });
+    }
+
+    if (quest.photoBonusApplied) {
+      return res.status(400).json({
+        ok: false,
+        message: "La evidencia de foto ya fue enviada"
+      });
+    }
+
+    quest.photoEvidenceSubmitted = true;
+    quest.photoEvidenceSubmittedAt = new Date();
+    quest.photoBonusApplied = true;
+    await quest.save();
+
+    const progress = await applyPhotoEvidenceReward(userId, quest);
+
+    return res.json({
+      ok: true,
+      message: "Evidencia de foto registrada y bonus aplicado",
+      quest,
+      profile: progress.profile,
+      stats: progress.stats
+    });
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      message: err.message
+    });
+  }
+}
+
+async function submitLocationEvidence(req, res) {
+  try {
+    const userId = req.user.userId;
+    const questId = req.params.id;
+
+    const { latitude, longitude, accuracy = null, capturedAt = null } = req.body || {};
+
+    if (typeof latitude !== "number" || typeof longitude !== "number") {
+      return res.status(400).json({
+        ok: false,
+        message: "latitude y longitude son requeridos y deben ser numéricos"
+      });
+    }
+
+    const quest = await Quest.findOne({
+      _id: questId,
+      userId,
+      deleted: false
+    });
+
+    if (!quest) {
+      return res.status(404).json({
+        ok: false,
+        message: "Quest no encontrada"
+      });
+    }
+
+    if (!quest.completed) {
+      return res.status(400).json({
+        ok: false,
+        message: "Primero debes completar la quest"
+      });
+    }
+
+    if (!quest.locationEvidenceEnabled) {
+      return res.status(400).json({
+        ok: false,
+        message: "Esta quest no permite evidencia con ubicación"
+      });
+    }
+
+    if (quest.locationBonusApplied) {
+      return res.status(400).json({
+        ok: false,
+        message: "La evidencia de ubicación ya fue enviada"
+      });
+    }
+
+    quest.locationEvidenceSubmitted = true;
+    quest.locationEvidenceSubmittedAt = new Date();
+    quest.locationBonusApplied = true;
+
+    quest.location = {
+      type: "Point",
+      coordinates: [longitude, latitude]
+    };
+
+    quest.locationAccuracy = accuracy;
+    quest.locationCapturedAt = capturedAt ? new Date(capturedAt) : new Date();
+
+    await quest.save();
+
+    const progress = await applyLocationEvidenceReward(userId, quest);
+
+    return res.json({
+      ok: true,
+      message: "Ubicación registrada y bonus aplicado",
       quest,
       profile: progress.profile,
       stats: progress.stats
@@ -326,7 +536,18 @@ async function seedDailyQuests(req, res) {
       globalXpReward: quest.globalXpReward ?? quest.xpReward ?? 10,
       coinReward: quest.coinReward ?? 0,
       statRewards: quest.statRewards ?? [],
-      dayKey: todayKey
+      dayKey: todayKey,
+
+      photoEvidenceEnabled: quest.photoEvidenceEnabled ?? false,
+      locationEvidenceEnabled: quest.locationEvidenceEnabled ?? false,
+
+      photoBonusXp: quest.photoBonusXp ?? 0,
+      photoBonusCoins: quest.photoBonusCoins ?? 0,
+      photoBonusStatRewards: quest.photoBonusStatRewards ?? [],
+
+      locationBonusXp: quest.locationBonusXp ?? 0,
+      locationBonusCoins: quest.locationBonusCoins ?? 0,
+      locationBonusStatRewards: quest.locationBonusStatRewards ?? []
     }));
 
     const createdQuests = await Quest.insertMany(questsToInsert);
@@ -344,6 +565,76 @@ async function seedDailyQuests(req, res) {
   }
 }
 
+async function getQuestHistory(req, res) {
+  try {
+    const userId = req.user.userId;
+
+    const quests = await Quest.find({
+      userId,
+      completed: true
+    })
+      .sort({ completedAt: -1 })
+      .select("title type completedAt globalXpReward coinReward statRewards photoEvidenceSubmitted locationEvidenceSubmitted");
+
+    return res.json({
+      ok: true,
+      count: quests.length,
+      history: quests
+    });
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      message: err.message
+    });
+  }
+}
+
+async function getQuestHistorySummary(req, res) {
+  try {
+    const userId = req.user.userId;
+
+    const summary = await Quest.aggregate([
+      {
+        $match: {
+          userId: Quest.db.base.Types.ObjectId.createFromHexString(userId),
+          completed: true
+        }
+      },
+      {
+        $addFields: {
+          normalizedTitle: {
+            $toLower: "$title"
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$normalizedTitle",
+          title: { $first: "$title" },
+          count: { $sum: 1 },
+          firstCompletedAt: { $min: "$completedAt" },
+          lastCompletedAt: { $max: "$completedAt" },
+          dates: { $push: "$completedAt" }
+        }
+      },
+      {
+        $sort: { count: -1, lastCompletedAt: -1 }
+      }
+    ]);
+
+    return res.json({
+      ok: true,
+      count: summary.length,
+      summary
+    });
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      message: err.message
+    });
+  }
+}
+
 module.exports = {
   listQuests,
   listCustomQuests,
@@ -351,7 +642,11 @@ module.exports = {
   createCustomQuest,
   updateCustomQuest,
   completeQuest,
+  submitPhotoEvidence,
+  submitLocationEvidence,
   deleteQuest,
   deleteCustomQuest,
-  seedDailyQuests
+  seedDailyQuests,
+  getQuestHistory,
+  getQuestHistorySummary
 };

@@ -7,9 +7,13 @@ const {
   createCustomQuest,
   updateCustomQuest,
   completeQuest,
+  submitPhotoEvidence,
+  submitLocationEvidence,
   deleteQuest,
   deleteCustomQuest,
-  seedDailyQuests
+  seedDailyQuests,
+  getQuestHistory,
+  getQuestHistorySummary
 } = require("../controllers/quests.controller");
 
 router.use(authRequired);
@@ -24,7 +28,12 @@ router.post("/custom", createCustomQuest);
 router.patch("/custom/:id", updateCustomQuest);
 router.delete("/custom/:id", deleteCustomQuest);
 
+router.get("/history", getQuestHistory);
+router.get("/history/summary", getQuestHistorySummary);
+
 router.patch("/:id/complete", completeQuest);
+router.post("/:id/evidence/photo", submitPhotoEvidence);
+router.post("/:id/evidence/location", submitLocationEvidence);
 router.delete("/:id", deleteQuest);
 
 module.exports = router;
