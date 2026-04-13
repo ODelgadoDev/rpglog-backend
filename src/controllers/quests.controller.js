@@ -116,25 +116,28 @@ async function createCustomQuest(req, res) {
     const userId = req.user.userId;
 
     const body = req.body || {};
-    const {
-      title,
-      description = "",
-      xpReward = 10,
-      globalXpReward,
-      coinReward = 0,
-      statRewards = [],
+const {
+  title,
+  description = "",
+  xpReward = 10,
+  globalXpReward,
+  coinReward = 0,
+  statRewards = [],
+  slotIdx = null,
+  durationMs = null,
+  startedAt = null,
 
-      photoEvidenceEnabled = false,
-      locationEvidenceEnabled = false,
+  photoEvidenceEnabled = false,
+  locationEvidenceEnabled = false,
 
-      photoBonusXp = 0,
-      photoBonusCoins = 0,
-      photoBonusStatRewards = [],
+  photoBonusXp = 0,
+  photoBonusCoins = 0,
+  photoBonusStatRewards = [],
 
-      locationBonusXp = 0,
-      locationBonusCoins = 0,
-      locationBonusStatRewards = []
-    } = body;
+  locationBonusXp = 0,
+  locationBonusCoins = 0,
+  locationBonusStatRewards = []
+} = body;
 
     if (!title) {
       return res.status(400).json({
@@ -152,7 +155,9 @@ async function createCustomQuest(req, res) {
       globalXpReward: typeof globalXpReward === "number" ? globalXpReward : xpReward,
       coinReward,
       statRewards,
-
+      customSlotIndex: slotIdx,
+      customDurationMs: durationMs,
+      customStartedAt: startedAt ? new Date(startedAt) : new Date(),
       photoEvidenceEnabled,
       locationEvidenceEnabled,
 
@@ -163,6 +168,8 @@ async function createCustomQuest(req, res) {
       locationBonusXp,
       locationBonusCoins,
       locationBonusStatRewards
+
+      
     });
 
     return res.status(201).json({

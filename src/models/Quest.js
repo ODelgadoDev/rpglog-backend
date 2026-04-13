@@ -85,7 +85,9 @@ const questSchema = new mongoose.Schema(
     photoEvidenceSubmitted: { type: Boolean, default: false },
     photoEvidenceSubmittedAt: { type: Date, default: null },
     photoBonusApplied: { type: Boolean, default: false },
-
+    customSlotIndex: { type: Number, default: null },
+    customDurationMs: { type: Number, default: null },
+    customStartedAt: { type: Date, default: null },
     locationEvidenceSubmitted: { type: Boolean, default: false },
     locationEvidenceSubmittedAt: { type: Date, default: null },
     locationBonusApplied: { type: Boolean, default: false },
@@ -103,5 +105,6 @@ const questSchema = new mongoose.Schema(
 questSchema.index({ userId: 1, completedAt: -1 });
 questSchema.index({ userId: 1, title: 1 });
 questSchema.index({ location: "2dsphere" });
+
 
 module.exports = mongoose.model("Quest", questSchema);

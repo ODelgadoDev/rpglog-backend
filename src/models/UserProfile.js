@@ -23,8 +23,9 @@ const userProfileSchema = new mongoose.Schema(
     streakMax: { type: Number, default: 0, min: 0 },
     streakProtected: { type: Number, default: 0, min: 0 },
 
-    equippedTitleId: { type: String, default: null },
-    customSlots: { type: Number, default: 1, min: 1, max: 2 }
+    ownedTitleIds: { type: [String], default: ["t0", "t1", "t2"] },
+    equippedTitleId: { type: String, default: "t0" },
+    customSlots: { type: Number, default: 1, min: 1, max: 3 }
   },
   { timestamps: true }
 );
